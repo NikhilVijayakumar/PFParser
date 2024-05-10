@@ -10,7 +10,7 @@ def extract_passbook_data_from_pdf(pdf_path):
     return passbook_data
 
 
-def parse_passbook_data(data):
+def parse_passbook_contribution(data):
     passbook_entries = []
     lines = data.split('\n')
 
@@ -46,3 +46,34 @@ def parse_passbook_data(data):
                 })
 
     return passbook_entries
+
+
+def parse_interest_data(data):
+    """Parse interest-related data."""
+    interest_entries = []
+    lines = data.split('\n')
+
+    for line in lines:
+        if "Taxable Data for the year" in line:
+            break  # Stop parsing if this line is found
+        if "Int. Updated upto" in line:
+            parts = line.split()
+            if len(parts) >= 7:
+                # Extract date and contributions
+                date = parts[3]  # Assuming the date is always at index 3
+                if is_valid_date(date, "%d/%m/%Y"):
+                    # Remove commas and convert to integers
+                    interest_employee = int(parts[4].replace(',', ''))
+                    interest_employer = int(parts[5].replace(',', ''))
+                    interest_pension = int(parts[6].replace(',', ''))
+                    interest_entries.append({
+                        "Date": date,
+                        "Interest_Employee_Contribution": interest_employee,
+                        "Interest_Employer_Contribution": interest_employer,
+                        "Interest_Pension": interest_pension
+                    })
+    return interest_entries
+
+
+
+
